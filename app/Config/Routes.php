@@ -2,27 +2,39 @@
 
 namespace Config;
 
-use CodeIgniter\Router\RouteCollection;
+// Create a new instance of our RouteCollection class.
+$routes = Services::routes();
 
-/**
- * @var RouteCollection $routes
+/*
+ * --------------------------------------------------------------------
+ * Router Setup
+ * --------------------------------------------------------------------
  */
+$routes->setDefaultNamespace('App\Controllers');
+$routes->setDefaultController('Home');
+$routes->setDefaultMethod('index');
+$routes->setTranslateURIDashes(false);
+$routes->set404Override();
+// $routes->setAutoRoute(true); // Sebaiknya false untuk keamanan
 
-// Rute default, mengarah ke halaman depan untuk pelanggan
+
+// Rute Halaman Depan (Customer)
 $routes->get('/', 'Home::index');
 
 /*
  * --------------------------------------------------------------------
- * Rute Tambahan
+ * Rute Pemesanan oleh Pelanggan
  * --------------------------------------------------------------------
  */
+// Menampilkan halaman form pemesanan untuk produk dengan ID tertentu
+$routes->get('pesan/(:num)', 'PesananController::index/$1');
+// Menyimpan data dari form pemesanan
+$routes->post('pesan/simpan', 'PesananController::simpan');
 
-// Rute untuk menampilkan gambar dari folder `writable`
-$routes->get('uploads/(:segment)/(:segment)', 'App\Controllers\UploadController::show/$1/$2');
 
 /*
  * --------------------------------------------------------------------
- * Rute Autentikasi (Login & Logout)
+ * Rute Autentikasi Admin
  * --------------------------------------------------------------------
  */
 $routes->get('login', 'AuthController::index');
@@ -32,37 +44,42 @@ $routes->get('logout', 'AuthController::logout');
 
 /*
  * --------------------------------------------------------------------
- * Rute Panel Admin (Dilindungi oleh Filter)
+ * Rute Panel Admin
  * --------------------------------------------------------------------
  */
-$routes->group('admin', function ($routes) {
-    
+$routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($routes) {
     // Rute untuk Dashboard Admin
-    $routes->get('/', 'Admin\DashboardController::index');
+    $routes->get('/', 'DashboardController::index');
 
     // --- Rute untuk CRUD Kategori ---
-    $routes->get('kategori', 'Admin\KategoriController::index');
-    $routes->get('kategori/create', 'Admin\KategoriController::create');
-    $routes->post('kategori/store', 'Admin\KategoriController::store');
-    $routes->get('kategori/edit/(:num)', 'Admin\KategoriController::edit/$1');
-    $routes->post('kategori/update/(:num)', 'Admin\KategoriController::update/$1');
-    $routes->get('kategori/delete/(:num)', 'Admin\KategoriController::delete/$1');
+    $routes->get('kategori', 'KategoriController::index');
+    $routes->get('kategori/create', 'KategoriController::create');
+    $routes->post('kategori/store', 'KategoriController::store');
+    $routes->get('kategori/edit/(:num)', 'KategoriController::edit/$1');
+    $routes->post('kategori/update/(:num)', 'KategoriController::update/$1');
+    $routes->get('kategori/delete/(:num)', 'KategoriController::delete/$1');
 
     // --- Rute untuk CRUD Produk ---
-    $routes->get('produk', 'Admin\ProdukController::index');
-    $routes->get('produk/create', 'Admin\ProdukController::create');
-    $routes->post('produk/store', 'Admin\ProdukController::store');
-    $routes->get('produk/edit/(:num)', 'Admin\ProdukController::edit/$1');
-    $routes->post('produk/update/(:num)', 'Admin\ProdukController::update/$1');
-    $routes->get('produk/delete/(:num)', 'Admin\ProdukController::delete/$1');
+    $routes->get('produk', 'ProdukController::index');
+    $routes->get('produk/create', 'ProdukController::create');
+    $routes->post('produk/store', 'ProdukController::store');
+    $routes->get('produk/edit/(:num)', 'ProdukController::edit/$1');
+    $routes->post('produk/update/(:num)', 'ProdukController::update/$1');
+    $routes->get('produk/delete/(:num)', 'ProdukController::delete/$1');
 
-
-    // --- Rute untuk CRUD Pesanan ---
-    $routes->get('pesanan', 'Admin\PesananController::index');
-    $routes->get('pesanan/create', 'Admin\PesananController::create');
-    $routes->post('pesanan/store', 'Admin\PesananController::store');
-    $routes->get('pesanan/edit/(:num)', 'Admin\PesananController::edit/$1');
-    $routes->post('pesanan/update/(:num)', 'Admin\PesananController::update/$1');
-    $routes->get('pesanan/delete/(:num)', 'Admin\PesananController::delete/$1');
-
+    // --- Rute untuk Manajemen Pesanan (oleh Admin) ---
+    $routes->get('pesanan', 'PesananController::index');
+    $routes->get('pesanan/detail/(:num)', 'PesananController::detail/$1');
+    $routes->post('pesanan/update_status/(:num)', 'PesananController::updateStatus/$1');
+    $routes->get('pesanan/delete/(:num)', 'PesananController::delete/$1');
 });
+
+
+/*
+ * --------------------------------------------------------------------
+ * Additional Routing
+ * --------------------------------------------------------------------
+ */
+if (is_file(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php')) {
+    require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';
+}

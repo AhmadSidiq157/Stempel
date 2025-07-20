@@ -2,34 +2,36 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Models\ProdukModel;
-use App\Models\PesananModel;
+use App\Models\KategoriModel; // Pastikan ini ada di atas
 
 class Home extends BaseController
 {
-    protected $produkModel;
-    protected $pesananModel;
-
-    public function __construct()
-    {
-        // Inisialisasi model
-        $this->produkModel = new ProdukModel();
-        $this->pesananModel = new PesananModel();
-
-        // Memuat helper
-        helper(['form', 'url', 'text']);
-    }
+    // Tidak perlu deklarasi properti di sini, kita akan buat instance langsung di method
 
     public function index()
     {
-        $data = [
-            'title'  => 'Selamat Datang di Toko Stempel Kami',
-            'produk' => $this->produkModel->getProdukWithKategori(),
-            // Jika ingin tampilkan juga pesanan:
-            // 'pesanan' => $this->pesananModel->getPesananWithProduk()
-        ];
+        // Buat instance dari model yang dibutuhkan
+        $produkModel = new ProdukModel();
+        $kategoriModel = new KategoriModel();
+
+        // Ambil ID kategori dari URL jika ada (misal: /?kategori=1)
+        $kategoriId = $this->request->getGet('kategori');
+
+        // Ambil semua kategori untuk ditampilkan sebagai tombol filter
+        $semuaKategori = $kategoriModel->findAll();
+
+        // Ambil produk, sudah difilter berdasarkan kategoriId jika ada
+        $produk = $produkModel->getProdukWithKategori($kategoriId);
         
+        // Siapkan data untuk dikirim ke view
+        $data = [
+            'title'          => 'Selamat Datang di Toko Stempel Kami',
+            'produk'         => $produk,
+            'kategori'       => $semuaKategori, // Kirim daftar kategori ke view
+            'kategori_aktif' => $kategoriId,    // Kirim ID kategori yang sedang aktif
+        ];
+
         return view('home_view', $data);
     }
 }

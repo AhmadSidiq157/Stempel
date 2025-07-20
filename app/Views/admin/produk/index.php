@@ -24,22 +24,29 @@
             <tbody>
                 <?php if (!empty($produk)): ?>
                     <?php foreach ($produk as $item): ?>
-                    <tr>
-                        <td>
-                            <!-- Baris ini membuat URL yang benar untuk menampilkan gambar -->
-                            <img src="<?= site_url('uploads/produk/' . esc($item['gambar'])) ?>" 
-                                 alt="<?= esc($item['nama_produk']) ?>" 
-                                 width="80" 
-                                 class="img-thumbnail">
-                        </td>
-                        <td><?= esc($item['nama_produk']) ?></td>
-                        <td><span class="badge bg-secondary"><?= esc($item['nama_kategori']) ?></span></td>
-                        <td>Rp <?= number_format($item['harga'], 0, ',', '.') ?></td>
-                        <td class="text-center">
-                            <a href="<?= site_url('admin/produk/edit/' . $item['id']) ?>" class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil-square"></i></a>
-                            <a href="<?= site_url('admin/produk/delete/' . $item['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')" title="Hapus"><i class="bi bi-trash-fill"></i></a>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>
+                                <?php if (!empty($item['gambar'])): ?>
+                                    <img src="<?= site_url('uploads/produk/' . esc($item['gambar'])) ?>"
+                                         alt="<?= esc($item['nama_produk']) ?>"
+                                         width="80"
+                                         class="img-thumbnail">
+                                <?php else: ?>
+                                    <span class="text-muted">Tidak ada gambar</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= esc($item['nama_produk']) ?></td>
+                            <td><span class="badge bg-secondary"><?= esc($item['nama_kategori']) ?></span></td>
+                            <td>Rp <?= number_format($item['harga'], 0, ',', '.') ?></td>
+                            <td class="text-center">
+                                <a href="<?= site_url('admin/produk/edit/' . $item['id']) ?>" class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="<?= site_url('admin/produk/delete/' . $item['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')" title="Hapus">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </td>
+                        </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>

@@ -11,45 +11,43 @@ class PesananModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
+    
+    protected $protectFields    = false; 
 
     protected $allowedFields    = [
-        'nama_pemesan', 
-        'no_telepon', 
-        'alamat', 
-        'produk_id', 
-        'jumlah', 
-        'total_harga', 
+        'produk_id',
+        'nama_pelanggan',
+        'no_hp',
+        'alamat',
+        'jumlah',
+        'total_harga',
         'status'
     ];
 
+    // Dates
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
+    protected $updatedField  = '';
 
     /**
-     * Mengambil semua data pesanan beserta nama produk.
-     *
-     * @return array
+     * Mengambil semua pesanan dengan data produk terkait.
      */
     public function getPesananWithProduk()
     {
-        return $this->select('pesanan.*, produk.nama_produk')
-                    ->join('produk', 'produk.id = pesanan.produk_id')
-                    ->orderBy('pesanan.id', 'DESC')
-                    ->findAll();
+        return $this->select('pesanan.*, produk.nama_produk, produk.gambar')
+            ->join('produk', 'produk.id = pesanan.produk_id', 'left')
+            ->orderBy('pesanan.created_at', 'DESC')
+            ->findAll();
     }
 
     /**
-     * Mengambil data pesanan berdasarkan ID, termasuk nama produk.
-     *
-     * @param int $id
-     * @return array|null
+     * Mengambil detail satu pesanan dengan info produk.
      */
-    public function getPesananWithProdukById($id)
+    public function getDetailPesanan($id)
     {
-        return $this->select('pesanan.*, produk.nama_produk')
-                    ->join('produk', 'produk.id = pesanan.produk_id')
-                    ->where('pesanan.id', $id)
-                    ->first();
+        return $this->select('pesanan.*, produk.nama_produk, produk.gambar, produk.harga as harga_satuan')
+            ->join('produk', 'produk.id = pesanan.produk_id', 'left')
+            ->where('pesanan.id', $id)
+            ->first();
     }
 }

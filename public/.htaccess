@@ -1,19 +1,16 @@
-# Melindungi file .htaccess dari akses browser
-<Files .htaccess>
-    Require all denied
-</Files>
-
-# Mencegah listing isi direktori
-Options -Indexes
-
-# Mengaktifkan modul rewrite URL
+# Enable URL rewriting
 RewriteEngine On
 
-# Memastikan base URL sudah benar (opsional jika ada masalah)
-# RewriteBase /
-
-# Mengalihkan semua request yang BUKAN file atau direktori yang ada
-# ke file index.php sebagai titik masuk utama
-RewriteCond %{REQUEST_FILENAME} !-f
+# Redirect Trailing Slashes if not a directory...
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L]
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# Handle Front Controller...
+# Ensures that if a file or directory doesn't exist, the request is sent to index.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
+
+# Handle Authorization Header if needed by your application (e.g., for APIs)
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
